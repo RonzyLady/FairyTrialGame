@@ -2,7 +2,6 @@ pico-8 cartridge // http://www.pico-8.com
 version 38
 __lua__
 --game loop
--- menu screen
 function _init()
    init_menu()
    sfx(7)
