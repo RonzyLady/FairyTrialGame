@@ -34,7 +34,6 @@ end
 function update_menu()
  if btnp(❎) then
    init_game()
-    
  end
 end
 
@@ -49,7 +48,9 @@ function update_game()
    end
   end 
  else
-  if (btnp(❎)) extcmd("reset")
+  if (btnp(❎)) then 
+    extcmd("reset")
+  end
  end  
 end
 
@@ -352,9 +353,9 @@ function draw_chat()
   print("give heart please?",chatx+4,chaty+16,6)
   print("yes 🅾️",chatx+4,chaty+40,6)
   print("no ❎",chatx+50,chaty+40,6)
+  decide_fate()
  end
- 
- decide_fate()
+  
 end
 
 function decide_fate()
@@ -367,12 +368,14 @@ function decide_fate()
   end
  
  elseif (btnp(❎)) then
-  unswap_tile(activ_frenx,activ_freny) 
+  unswap_tile(activ_frenx,activ_freny)
 --  sfx(6) fix so that only in chat the sound is called
  end
  
  if (btnp(🅾️)) active_chat=nil
- if (btnp(❎)) active_chat=nil
+ if (btnp(❎)) then
+  active_chat=nil
+ end
 end 
 --function show_inventory()
 -- invx=mapx*8+40
@@ -494,13 +497,11 @@ function draw_text()
   rectfill(textx,texty,textx+119,texty+31,7)
   print(active_text, textx+4,texty+4,1)
   print("press ❎ to close",textx+4,texty+23,6)
+  if (btnp(❎)) then 
+    active_text=nil
+   end
  end
- 
- if (btnp(❎)) then 
-  active_text=nil
-  printh('debug')
- end
-end  
+ end  
 __gfx__
 000000007700007700000000000000000000000000000000cc2cc22c1dd1ddd11ddd1ddd1ddd1ddd2222e222222e22222222222222222222c22cc22cc22cc22c
 000000007c7007c700000000000000000000000007700770c12112211111111111111111111111117722227777222277277277d2222222221221122112211221
