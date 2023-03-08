@@ -1,0 +1,24 @@
+# adapted from https://cs.anu.edu.au/courses/comp1720/resources/faq/#statement-of-originality
+
+
+name: Valentina Nastase
+
+declaration: >-
+  I declare that everything I have submitted in this assignment is entirely my
+  own work, with the following exceptions:
+
+
+     
+
+# add as many "url+licence+comment" entries as necessary
+# (or remove it altogether if you haven't used any external code)
+code: map, sprite movement, tile interaction, tile animation, text pop-up
+  - comment: I also used the follow-up video tutorials 
+    url: https://www.youtube.com/watch?v=J1wvvbVQ5zo&ab_channel=DylanBennett
+    licence: DylanBennett
+
+code: start menu added after game was made
+  - comment: 
+    url: https://www.youtube.com/watch?v=5G5Pj-0e0y4&ab_channel=NerdyTeachers
+    licence: NerdyTeachers
+
