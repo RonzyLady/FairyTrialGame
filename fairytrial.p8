@@ -374,8 +374,12 @@ function draw_chat()
   rectfill(chatx,chaty,chatx+119,chaty+48,0)
   print(active_chat, chatx+4,chaty+4,1)
   print("give heart please?",chatx+4,chaty+16,6)
+  if p.hearts == 0 then
+    print("no hearts to give, press ❎ ",chatx+4,chaty+40,6)
+  elseif p.hearts>0 then 
   print("yes 🅾️",chatx+4,chaty+40,6)
   print("no ❎",chatx+50,chaty+40,6)
+  end
   decide_fate()
  end
   
