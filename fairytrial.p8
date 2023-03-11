@@ -42,7 +42,7 @@ function update_game()
   if (not active_text) then
    if (not active_chat) then
     update_map()
-    sparkle()		
+    fly()		
     move_player()
     check_win_lose()
    end
@@ -141,7 +141,6 @@ function draw_map()
  rectfill(mapx*8,mapy*8,128*4,mapy*8+8,0)
  print("life: ♥".. hscore,mapx*8,mapy*8, 7, 1)
  print("keys: ".. p.keys,mapx*8+48,mapy*8, 7, 1)
--- print("hello",6*8,2*8,7)
 end
 
 function is_tile(tile_type,x,y)
@@ -199,12 +198,6 @@ function give_heart(x,y)
  end
 end
 
---function get_gold(x,y)
--- p.gold+=5
--- swap_tile(x,y)
--- sfx(1)
---end
-
 function push_button(x,y)
  swap_tile(x,y)
  currentb=buttonon
@@ -235,6 +228,8 @@ function make_player()
  p={}
  p.x=2
  p.y=3
+ p.ox, p.oy = 0, 0
+ p.shake = 0
  p.sprite=1
  p.keys=0
  p.hearts=0
@@ -244,7 +239,12 @@ function make_player()
 end
  
 function draw_player()
-   spr(p.sprite, p.x*8, p.y*8)
+  if p.shake > 0 then
+    p.shake -= 1
+  end
+  shake_x = p.shake * (rnd(12)/12 - 0.5)
+  shake_y = p.shake * (rnd(12)/12 - 0.5)
+  spr(p.sprite, p.x*8+p.ox+shake_x, p.y*8+p.oy+shake_y)
 end
 
 function move_player()
@@ -252,18 +252,46 @@ function move_player()
  newy=p.y 
  
   -- move the fairy using ⬆️⬇️➡️⬅️ controls
- if (btnp(⬆️)) newy-=1 
- if (btnp(⬇️)) newy+=1 
- if (btnp(⬅️)) newx-=1 
- if (btnp(➡️)) newx+=1 
+ if (btnp(⬆️)) then
+  newy-=1
+  p.oy=8
+ end
+ if (btnp(⬇️)) then 
+  newy+=1
+  p.oy=-8
+ end
+ if (btnp(⬅️)) then 
+  newx-=1
+  p.ox=8
+ end  
+ if (btnp(➡️)) then
+  newx+=1
+  p.ox=-8
+ end
  
  interact(newx,newy)
 
  if (can_move(newx,newy)) then
   p.x=mid(0,newx,127) 
-  p.y=mid(0,newy,63)  
- else
+  p.y=mid(0,newy,63)
+  if p.ox!=0 or p.oy!=0 then
+    if p.ox>0 then
+      p.ox-=1
+     end
+     if p.ox<0 then
+      p.ox+=1
+     end
+     if p.oy>0 then
+      p.oy-=1
+     end
+     if p.oy<0 then
+      p.oy+=1
+     end
+  end
+ else -- cannot move
   sfx(0)
+  p.ox, p.oy = 0, 0
+  p.shake = 8
  end
 end
 
@@ -297,14 +325,10 @@ function interact(x,y)
   unpush_button(x,y)
  elseif (is_tile(door,x,y) and p.keys>0) then
   open_door(x,y)
--- elseif (is_tile(gold,x,y)) then
---  get_gold(x,y)
--- elseif (is_tile(npc1,x,y)) then
---  give_heart(x,y)
  end
 end
 
-function sparkle()
+function fly()
  delay=delay-1
 	if delay<0 then
 	p.sprite=p.sprite+1
@@ -316,13 +340,12 @@ function sparkle()
 end		
 
 
--- function not_give_heart (maybe)
+
 -- green spikes function (maybe) triggers while stepping on them but with a delay
 
 -->8
 --npc interaction code
 
---former inventory code
 function chat_setup()
  chats={}
  add_chat(10,8,"hi! am gold boy.")
@@ -377,15 +400,7 @@ function decide_fate()
   active_chat=nil
  end
 end 
---function show_inventory()
--- invx=mapx*8+40
--- invy=mapy*8+8
- 
---  rectfill(invx,invy,invx+48,invy+48,0)
---  print("inventory",invx+7,invy+4,7)
---  print("keys: "..p.keys,invx+12,invy+14,9)
---  print("hearts: "..p.hearts,invx+7,invy+30,14)
---end
+
 -->8
 --animation code
 
