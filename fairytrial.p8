@@ -150,7 +150,7 @@ function draw_map()
  for x=0,16 do
   for y=1,16 do
    if fog[x][y]==1 then
- --   rectfill(x*8,y*8,8,8,0)
+    rectfill(x*8,y*8,8,8,0)
    end
   end
  end
