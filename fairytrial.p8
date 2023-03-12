@@ -27,8 +27,10 @@ function init_game()
   game_over=false
   
    -- set state
+   fog=blankmap(1)
    _update = update_game
    _draw = draw_game
+   
 end
 
 function update_menu()
@@ -144,8 +146,28 @@ function draw_map()
  rectfill(mapx*8,mapy*8,128*4,mapy*8+8,0)
  print("life: ♥".. hscore,mapx*8,mapy*8, 7, 1)
  print("keys: ".. p.keys,mapx*8+48,mapy*8, 7, 1)
+
+ for x=0,16 do
+  for y=1,16 do
+   if fog[x][y]==1 then
+ --   rectfill(x*8,y*8,8,8,0)
+   end
+  end
+ end
 end
 
+function blankmap(_dflt)
+  local ret={} 
+  if (_dflt==nil) _dflt=0
+  
+  for x=0,16 do
+   ret[x]={}
+   for y=1,16 do
+    ret[x][y]=_dflt
+   end
+  end
+  return ret
+ end
 function is_tile(tile_type,x,y)
  tile=mget(x,y)
  for i=1,#tile_type do
@@ -154,10 +176,14 @@ function is_tile(tile_type,x,y)
  return false
 end
 
+
 function can_move(x,y)
  return not is_tile(wall,x,y)
+
 end
 
+
+ 
 -- animate the items
 function swap_tile(x,y)
  tile=mget(x,y)
@@ -170,7 +196,7 @@ function unswap_tile(x,y)
  mset(x,y,tile-1)
 end
 
---add up keys and make them dissapear
+  --add up keys and make them dissapear
 function get_key(x,y)
  p.keys+=1
  kscore+=1
@@ -297,6 +323,7 @@ function move_player()
   p.ox, p.oy = 0, 0
   p.shake = 8
  end
+ 
 end
 
 function interact(x,y)
