@@ -27,8 +27,10 @@ function init_game()
   game_over=false
   
    -- set state
+   fog=blankmap()
    _update = update_game
    _draw = draw_game
+   
 end
 
 function update_menu()
@@ -42,7 +44,7 @@ function update_game()
   if (not active_text) then
    if (not active_chat) then
     update_map()
-    sparkle()		
+    fly()		
     move_player()
     check_win_lose()
    end
@@ -81,6 +83,9 @@ end
 
 function map_setup()
 -- timer
+fate=0 -- no npc encounter
+conf_txt=false
+delay_txt=8
 timer=0
 timer2=0
 anim_time=30 --30 = 1 second
@@ -141,8 +146,30 @@ function draw_map()
  rectfill(mapx*8,mapy*8,128*4,mapy*8+8,0)
  print("life: ♥".. hscore,mapx*8,mapy*8, 7, 1)
  print("keys: ".. p.keys,mapx*8+48,mapy*8, 7, 1)
--- print("hello",6*8,2*8,7)
+
+ for fogx=0,31 do
+  for fogy=1,15 do
+   if fog[fogx][fogy]==0 then
+    rectfill2(fogx*8,fogy*8,8,8,0)
+   end
+  end
+ end
 end
+
+function rectfill2(_x,_y,_w,_h,_c)
+  rectfill(_x,_y,_x+max(_w-1,0),_y+max(_h-1,0),_c)
+end
+
+function blankmap()
+  local ret={} 
+   for x=0,31 do
+    ret[x]={}
+   for y=1,15 do
+    ret[x][y]=0
+   end
+  end
+  return ret
+ end
 
 function is_tile(tile_type,x,y)
  tile=mget(x,y)
@@ -152,10 +179,11 @@ function is_tile(tile_type,x,y)
  return false
 end
 
+
 function can_move(x,y)
  return not is_tile(wall,x,y)
 end
-
+ 
 -- animate the items
 function swap_tile(x,y)
  tile=mget(x,y)
@@ -168,7 +196,7 @@ function unswap_tile(x,y)
  mset(x,y,tile-1)
 end
 
---add up keys and make them dissapear
+  --add up keys and make them dissapear
 function get_key(x,y)
  p.keys+=1
  kscore+=1
@@ -194,16 +222,11 @@ function give_heart(x,y)
  if (p.hearts>0) then
  p.hearts-=1
  hscore-=1
+ fate=1
  swap_tile(x,y)
  sfx(5)
  end
 end
-
---function get_gold(x,y)
--- p.gold+=5
--- swap_tile(x,y)
--- sfx(1)
---end
 
 function push_button(x,y)
  swap_tile(x,y)
@@ -235,6 +258,8 @@ function make_player()
  p={}
  p.x=2
  p.y=3
+ p.ox, p.oy = 0, 0
+ p.shake = 0
  p.sprite=1
  p.keys=0
  p.hearts=0
@@ -244,7 +269,12 @@ function make_player()
 end
  
 function draw_player()
-   spr(p.sprite, p.x*8, p.y*8)
+  if p.shake > 0 then
+    p.shake -= 1
+  end
+  shake_x = p.shake * (rnd(12)/12 - 0.5)
+  shake_y = p.shake * (rnd(12)/12 - 0.5)
+  spr(p.sprite, p.x*8+p.ox+shake_x, p.y*8+p.oy+shake_y)
 end
 
 function move_player()
@@ -252,20 +282,62 @@ function move_player()
  newy=p.y 
  
   -- move the fairy using ⬆️⬇️➡️⬅️ controls
- if (btnp(⬆️)) newy-=1 
- if (btnp(⬇️)) newy+=1 
- if (btnp(⬅️)) newx-=1 
- if (btnp(➡️)) newx+=1 
+ if (btnp(⬆️)) then
+  newy-=1
+  p.oy=8
+ end
+ if (btnp(⬇️)) then 
+  newy+=1
+  p.oy=-8
+ end
+ if (btnp(⬅️)) then 
+  newx-=1
+  p.ox=8
+ end  
+ if (btnp(➡️)) then
+  newx+=1
+  p.ox=-8
+ end
  
  interact(newx,newy)
 
  if (can_move(newx,newy)) then
   p.x=mid(0,newx,127) 
-  p.y=mid(0,newy,63)  
- else
+  p.y=mid(0,newy,63)
+  if p.ox!=0 or p.oy!=0 then
+    if p.ox>0 then
+      p.ox-=1
+     end
+     if p.ox<0 then
+      p.ox+=1
+     end
+     if p.oy>0 then
+      p.oy-=1
+     end
+     if p.oy<0 then
+      p.oy+=1
+     end
+  end
+ else -- cannot move
   sfx(0)
+  p.ox, p.oy = 0, 0
+  p.shake = 8
  end
+ unfog(newx,newy)
 end
+
+function unfog(x,y)  
+ fog[abs(x)][abs(y)]=1
+ fog[abs(x-1)][abs(y-1)]=1
+ fog[abs(x-1)][abs(y)]=1
+ fog[abs(x-1)][abs(y+1)]=1
+ fog[abs(x)][abs(y-1)]=1
+ fog[abs(x)][abs(y+1)]=1
+ fog[abs(x+1)][abs(y-1)]=1
+ fog[abs(x+1)][abs(y)]=1
+ fog[abs(x+1)][abs(y+1)]=1
+end
+
 
 function interact(x,y)
  if (is_tile(text,x,y)) then
@@ -273,10 +345,10 @@ function interact(x,y)
  end
  
  if (is_tile(npc2,x,y)) then
-  active_chat=get_chat(x,y)
   activ_frenx=x
   activ_freny=y
   activ_fren_type=npc2
+  active_chat=get_chat(x,y)
  end
  
  if (is_tile(key,x,y)) then
@@ -285,10 +357,10 @@ function interact(x,y)
   get_heart(x,y)
  
  elseif (is_tile(npc1,x,y)) then
-  active_chat=get_chat(x,y)
   activ_frenx=x
   activ_freny=y
   activ_fren_type=npc1
+  active_chat=get_chat(x,y)
  elseif (is_tile(groundbtnon,x,y)) then
   step_on(x,y) 
  elseif (is_tile(buttonoff,x,y)) then
@@ -297,14 +369,10 @@ function interact(x,y)
   unpush_button(x,y)
  elseif (is_tile(door,x,y) and p.keys>0) then
   open_door(x,y)
--- elseif (is_tile(gold,x,y)) then
---  get_gold(x,y)
--- elseif (is_tile(npc1,x,y)) then
---  give_heart(x,y)
  end
 end
 
-function sparkle()
+function fly()
  delay=delay-1
 	if delay<0 then
 	p.sprite=p.sprite+1
@@ -316,14 +384,14 @@ function sparkle()
 end		
 
 
--- function not_give_heart (maybe)
+
 -- green spikes function (maybe) triggers while stepping on them but with a delay
 
 -->8
 --npc interaction code
 
---former inventory code
 function chat_setup()
+ 
  chats={}
  add_chat(10,8,"hi! am gold boy.")
  add_chat(10,7,"hey! am dark fren")
@@ -343,6 +411,8 @@ function get_chat(x,y)
  return chats[x+y*128]
 end
 
+
+
 function draw_chat()
  if (active_chat) then
   chatx=mapx*8+4
@@ -351,41 +421,69 @@ function draw_chat()
   rectfill(chatx,chaty,chatx+119,chaty+48,0)
   print(active_chat, chatx+4,chaty+4,1)
   print("give heart please?",chatx+4,chaty+16,6)
-  print("yes 🅾️",chatx+4,chaty+40,6)
-  print("no ❎",chatx+50,chaty+40,6)
-  decide_fate()
+
+  if fate == 0 then
+    if p.hearts == 0 then
+      print("no hearts to give, press ❎ ",chatx+4,chaty+40,6)
+      if btn(❎)then
+       conf_txt=true       
+      end
+      if conf_txt==true then        
+        delay_txt-=1
+        print("no hearts to give, press ❎ ",chatx+4,chaty+40,8)   
+      end
+    end
+    if p.hearts>0 then 
+      decide_fate()
+      print("yes 🅾️",chatx+4,chaty+40,6)
+      print("no ❎",chatx+50,chaty+40,6)
+     end 
+  end
+
+  if fate!=0 then
+    print("yes 🅾️",chatx+4,chaty+40,6)
+    print("no ❎",chatx+50,chaty+40,6)
+    if conf_txt==true then
+      delay_txt-=1
+     if fate == 1 then
+      print("yes 🅾️",chatx+4,chaty+40,11)
+     end
+     if fate == 2 then
+      print("no ❎",chatx+50,chaty+40,8)
+     end
+    end 
+  end 
  end
-  
+ if (delay_txt<0) then 
+  if fate==0 then    
+    unswap_tile(activ_frenx,activ_freny)
+  end
+  fate=0
+  active_chat=nil
+  delay_txt=8
+  conf_txt=false
+end    
 end
 
 function decide_fate()
  if (btnp(🅾️)) then 
+  conf_txt=true
+  fate=1
   give_heart(activ_frenx,activ_freny)
   if (activ_fren_type==npc1) then
-  	p.black+=1
+   p.black+=1
   elseif(activ_fren_type==npc2) then
    p.yellow+=1
   end
  
  elseif (btnp(❎)) then
+  conf_txt=true
+  fate=2
   unswap_tile(activ_frenx,activ_freny)
 --  sfx(6) fix so that only in chat the sound is called
  end
- 
- if (btnp(🅾️)) active_chat=nil
- if (btnp(❎)) then
-  active_chat=nil
- end
 end 
---function show_inventory()
--- invx=mapx*8+40
--- invy=mapy*8+8
- 
---  rectfill(invx,invy,invx+48,invy+48,0)
---  print("inventory",invx+7,invy+4,7)
---  print("keys: "..p.keys,invx+12,invy+14,9)
---  print("hearts: "..p.hearts,invx+7,invy+30,14)
---end
+
 -->8
 --animation code
 
@@ -489,6 +587,8 @@ function get_text(x,y)
  return texts[x+y*128]
 end
 
+
+
 function draw_text()
  if (active_text) then
   textx=mapx*8+4
@@ -497,9 +597,18 @@ function draw_text()
   rectfill(textx,texty,textx+119,texty+31,7)
   print(active_text, textx+4,texty+4,1)
   print("press ❎ to close",textx+4,texty+23,6)
-  if (btnp(❎)) then 
-    active_text=nil
-   end
+  if conf_txt==true then
+    delay_txt-=1
+    print("press ❎ to close",textx+4,texty+23,11)
+  end 
+  if (delay_txt<0) then
+    active_text=false
+    delay_txt=8
+    conf_txt=false
+  end
+  if (btn(❎)) then 
+    conf_txt=true
+  end
  end
  end  
 __gfx__
@@ -566,12 +675,12 @@ __map__
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 1413131313131613131315131313131313131313131313151613131316131315000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 2423232323232623232324230823232323232308232323242623232326232324000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-24111010101036101120245010102c2d2e103d10102b30243620102036101024000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+24111010101036101010245010102c2d2e103d10102b30243620102036101024000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 24371010503010101011243d11102c2d10121111102d2b24203b101b20101024000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-34131613223f06131613173f06131315131313153d0613171615101413221024000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-2723262332382723242332382723232423232324382308232624102423320a24000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-15363636503f2b3624361b3f105010240c2b2d513f102b333624103413131324000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-241030102b2b2b1024303b10101010242b2d102410102c123b243d2723230824000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+34131613221006131513173f06131315131313153d0613171615101413221024000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+2723262332382323242332382723232423232324382308232624102423320a24000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+1511102b102b101024111b3f105010240c2b2d513f102b333624103413131324000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+241030102b10101024303b10101010242b2d102410102c123b243d2723230824000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 241010101010101024131313223f06241313131710102d101024102b2d2c1024000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 341313153806131317272308323827242323233210102b371b242c302b2d2c24000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 232323243f272323325010102d3f2b24302b113d11102c333624131313223f24000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
