@@ -22,3 +22,12 @@ code: start menu added after game was made
     url: https://www.youtube.com/watch?v=5G5Pj-0e0y4&ab_channel=NerdyTeachers
     licence: NerdyTeachers
 
+code: Sprite movement animation
+  - comment: implemented with the help of G. Burloiu
+    url: https://www.youtube.com/watch?v=CO1qTJMH8mU
+    licence: LazyDevs
+
+code: Fog of war
+  - comment: implemented with the help of S. Decianu
+    url: https://www.youtube.com/watch?v=QF5jZWAhl1s
+    licence: LazyDevs
