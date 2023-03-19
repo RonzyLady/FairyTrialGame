@@ -29,7 +29,8 @@ function init_game()
   game_over=false
 
    -- set state
-   fog=blankmap()
+   fog=blankmap(0,31,1,15)
+   fogcolor=blankmap(0,255,0,255)
    _update = update_game
    _draw = draw_game
    
@@ -160,6 +161,9 @@ function draw_map()
    if fog[fogx][fogy]==0 then
     rectfill2(fogx*8,fogy*8,8,8,0)
    end
+   if fog[fogx][fogy]==2 then
+    partfog(fogx,fogy)
+   end
   end
  end
 end
@@ -168,11 +172,11 @@ function rectfill2(_x,_y,_w,_h,_c)
   rectfill(_x,_y,_x+max(_w-1,0),_y+max(_h-1,0),_c)
 end
 
-function blankmap()
+function blankmap(x1,x2,y1,y2)
   local ret={} 
-   for x=0,31 do
+   for x=x1,x2 do
     ret[x]={}
-   for y=1,15 do
+   for y=y1,y2 do
     ret[x][y]=0
    end
   end
@@ -335,15 +339,32 @@ function move_player()
 end
 
 function unfog(x,y)  
- fog[abs(x)][abs(y)]=1
- fog[abs(x-1)][abs(y-1)]=1
- fog[abs(x-1)][abs(y)]=1
- fog[abs(x-1)][abs(y+1)]=1
- fog[abs(x)][abs(y-1)]=1
- fog[abs(x)][abs(y+1)]=1
- fog[abs(x+1)][abs(y-1)]=1
- fog[abs(x+1)][abs(y)]=1
- fog[abs(x+1)][abs(y+1)]=1
+  for i = x-2, x+2 do
+    for j = y-2, y+2 do
+      if abs(x-i)<=1 and abs(y-j)<=1 and i>=0 and j>=0 then
+        fog[i][j]=1
+      elseif i>=0 and j>=0 and fog[i][j]!=1 then
+        fog[i][j]=2
+      end
+    end
+  end  
+end
+
+function partfog(fogx,fogy)
+
+  for i = fogx*8, fogx*8+7 do
+    for j = fogy*8, fogy*8+7 do
+      if delay==0 then
+        rndcolor=flr(rnd(3)) 
+        fogcolor[i][j]=rndcolor
+      else
+        rndcolor = fogcolor[i][j]
+      end
+      if rndcolor!=0 then
+       rectfill(i,j,i,j,rndcolor)
+      end
+    end
+  end    
 end
 
 
