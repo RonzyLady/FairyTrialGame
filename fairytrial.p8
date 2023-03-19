@@ -7,6 +7,7 @@ black,dark_blue,dark_purple,dark_green,brown,dark_gray,light_gray,white,red,oran
 --game loop
 function _init()
    init_menu()
+   make_player()
    music(0)
 end
 
@@ -22,11 +23,11 @@ function init_game()
   music(7)
   text_setup()
   chat_setup()
-  make_player()
+  
     
   game_win=false
   game_over=false
-  
+
    -- set state
    fog=blankmap()
    _update = update_game
@@ -35,8 +36,10 @@ function init_game()
 end
 
 function update_menu()
+  
+ 
  if btnp(❎) then
-   init_game()
+   init_game()  
  end
 end
 
@@ -45,7 +48,7 @@ function update_game()
   if (not active_text) then
    if (not active_chat) then
     update_map()
-    fly()		
+    fly()	
     move_player()
     check_win_lose()
    end
@@ -59,6 +62,10 @@ end
 
 function draw_menu()
  cls()
+ 
+ fly()
+ spr(p.sprite, 7*8, 3*8)
+
  print("✽fairy trial✽",34,40,14)
  print("press ❎ to start",30,64,7)
 end
