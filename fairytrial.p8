@@ -343,8 +343,8 @@ function move_player()
 end
 
 function unfog(x,y)  
-  for i = x-2, x+2 do
-    for j = y-2, y+2 do
+  for i = x-2, min(x+2,31) do
+    for j = y-2, min(y+2,16) do
       if abs(x-i)<=1 and abs(y-j)<=1 and i>=0 and j>=0 then
         fog[i][j]=1
       elseif i>=0 and j>=0 and fog[i][j]!=1 then
