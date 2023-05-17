@@ -20,8 +20,6 @@ function init_menu()
 end
 
 function init_game()
-  -- set the fairy's starting position
-  -- map_setup()
   music(7)
   text_setup()
   chat_setup()
@@ -31,7 +29,7 @@ function init_game()
   game_over=false
 
    -- set state
-   fog=blankmap(0,31,1,15)
+   fog=blankmap(0,31,1,32)
    fogcolor=blankmap(0,255,0,255)
    _update = update_game
    _draw = draw_game
@@ -137,7 +135,7 @@ function anim_npc(anim_startspr,anim_endspr,anim_npc)
 function draw_menu()
  cls()
 
- spr(65,12,20,14,7) 
+ spr(65,12,20,13,7) 
 for n=1,3 do
   circ(rnd(128), rnd(64), rnd(2), rnd{6,7,12})
 end
@@ -254,13 +252,13 @@ function draw_map()
 
  map(0,0,0,0,128,64)
  draw_npcs()
- rectfill(mapx*8,mapy*8,128*4,mapy*8+8,0)
+ rectfill(mapx*8,mapy*8,128*4,mapy*8+7,0)
  print("life: ♥".. hscore,mapx*8,mapy*8, 7, 1)
  print("keys: ".. p.keys,mapx*8+48,mapy*8, 7, 1)
 
  for fogx=0,31 do
-  for fogy=1,15 do
-   if fog[fogx][fogy]==0 then
+  for fogy=1,32 do
+   if fog[fogx][fogy]==0 and fogy != 15 then
     rectfill2(fogx*8,fogy*8,8,8,0)
    end
    if fog[fogx][fogy]==2 then
@@ -402,19 +400,19 @@ end
 function make_gnpcs()
   allgold={}
   make_gnpc(4,3,"hi! am AAAAAAA boy.")
-  make_gnpc(5,3,"hi! am BBBB boy.")
-  make_gnpc(6,3,"hi! am CCCCC boy.")
-  make_gnpc(24,8,"i am so lonely... :(")
-  make_gnpc(25,4,"hug me please ♥")
-  make_gnpc(10,8,"NO HUg PLS")
+  -- make_gnpc(5,3,"hi! am BBBB boy.")
+  -- make_gnpc(6,3,"hi! am CCCCC boy.")
+  -- make_gnpc(24,8,"i am so lonely... :(")
+  -- make_gnpc(25,4,"hug me please ♥")
+  -- make_gnpc(10,8,"NO HUg PLS")
 end
 
 
 function make_dnpcs()  
   alldark={}
-  make_dnpc(10,7,"hey! am dark fren")
-  make_dnpc(24,10,"nobody loves dark fren :(")
-  make_dnpc(27,4,"dark fren needs hug ♥")
+  -- make_dnpc(10,7,"hey! am dark fren")
+  -- make_dnpc(24,10,"nobody loves dark fren :(")
+  -- make_dnpc(27,4,"dark fren needs hug ♥")
   make_dnpc(4,4,"test")
 end
 
@@ -517,7 +515,7 @@ end
 
 function unfog(x,y)  
   for i = x-2, min(x+2,31) do
-    for j = y-2, min(y+2,16) do
+    for j = y-2, min(y+2,32) do
       if abs(x-i)<=1 and abs(y-j)<=1 and i>=0 and j>=0 then
         fog[i][j]=1
       elseif i>=0 and j>=0 and fog[i][j]!=1 then
@@ -528,7 +526,9 @@ function unfog(x,y)
 end
 
 function partfog(fogx,fogy)
-
+if fogy==0 or fogy==15 then
+  return
+end
   for i = fogx*8, fogx*8+7 do
     for j = fogy*8, fogy*8+7 do
       if delay==0 then
@@ -862,7 +862,7 @@ function draw_text()
     conf_txt=true
   end
  end
- end  
+ end    
 __gfx__
 000000007700007700000000000000000000000000000000cc2cc22c1dd1ddd11ddd1ddd1ddd1ddd2222e222222e222222222222222222220000000000000000
 000000007c7007c700000000000000000000000007700770c12112211111111111111111111111117722227777222277277277d2222222220000000000000000
