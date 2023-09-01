@@ -135,16 +135,21 @@ function anim_npc(anim_startspr,anim_endspr,anim_npc)
 function draw_menu()
  cls()
 
- spr(65,12,20,13,7) 
+ spr(65,11,5,13,7) 
 for n=1,3 do
   circ(rnd(128), rnd(64), rnd(2), rnd{6,7,12})
 end
  fly()
- spr(p.sprite, 7*8, 11*8)
+ spr(p.sprite, 7*8, 8*8)
  
 for n=1,3 do
 
- print("press ❎ to start",30,104,rnd{2,6,7,12,13,14})
+ print("press ❎ to start",26,84,rnd{2,6,7,12,13,14})
+ rect(42,94,78,126,13)
+ print("controls",45,97,13)
+ print("⬆️⬇️➡️⬅️",45,107,13)
+ print("🅾️ = z/c",45,113,13)
+ print("❎ = x",45,119,13)
 end 
 end
 
@@ -253,7 +258,7 @@ function draw_map()
  map(0,0,0,0,128,64)
  draw_npcs()
  rectfill(mapx*8,mapy*8,128*4,mapy*8+7,0)
- print("life: ♥".. hscore,mapx*8,mapy*8, 7, 1)
+ print("hearts: ♥".. hscore,mapx*8,mapy*8, 7, 1)
  print("keys: ".. p.keys,mapx*8+48,mapy*8, 7, 1)
 
  for fogx=0,31 do
@@ -798,8 +803,8 @@ function draw_win_lose()
    print("you are dark friend",25,80,rnd{1,2,13})
    end
   elseif(p.black==0 and p.yellow==0) then
-    spr(3, 7*8, 90)
-   print("but you are heartless",23,80,7)
+    spr(3, 7*8, 100)
+   print("but you are heartless",20,80,7)
   elseif (p.black==p.yellow) then
     fly()
     spr(p.sprite, 7*8, 3*8)
@@ -810,9 +815,10 @@ function draw_win_lose()
    end 
   end    
  else
-  print("game over! :(",38,64,7)
+  print("the spikes pierced you...",15,54,7)
+  print("game over! :(",38,64,8)
  end
- print("press ❎ main menu",30,72,5) 
+ print("press ❎ main menu",27,88,5) 
 end 
 
 
